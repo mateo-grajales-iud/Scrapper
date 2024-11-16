@@ -1,0 +1,11 @@
+books/books/scrapy.cfg
+books/books/books/__init__.py
+books/books/books/items.py
+books/books/books/middlewares.py
+books/books/books/pipelines.py
+books/books/books/settings.py
+books/books/books/__pycache__/__init__.cpython-311.pyc
+books/books/books/__pycache__/settings.cpython-311.pyc
+books/books/books/spiders/__init__.py
+books/books/books/spiders/NOMBREPROYECTO.py
+books/books/books/spiders/__pycache__/__init__.cpython-311.pyc
