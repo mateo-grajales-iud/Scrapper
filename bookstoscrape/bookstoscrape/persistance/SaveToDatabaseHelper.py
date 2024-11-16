@@ -25,4 +25,7 @@ class SaveToDatabaseHelper:
     
     def saveArticle(self, sql, article):
         logging.debug("Running queries")
-        sql.insertArticle(article)
+        try: 
+            sql.insertArticle(article)
+        except Exception as e:
+            logging.error(e)
