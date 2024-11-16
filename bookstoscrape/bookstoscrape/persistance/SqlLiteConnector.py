@@ -24,11 +24,11 @@ class SqlLiteConnector:
                       Column("title", String, nullable=False),
                       Column("upc", String, nullable=False, primary_key=True),
                       Column("type", String, nullable=False),
-                      Column("priceBeforeTaxes", Float, nullable=False),
-                      Column("priceAfterTaxes", Float, nullable=False),
-                      Column("taxes", Float, nullable=False),
-                      Column("quantity", Integer, nullable=False),
-                      Column("reviews", Integer, nullable=False))
+                      Column("priceBeforeTaxes", Float, nullable=True),
+                      Column("priceAfterTaxes", Float, nullable=True),
+                      Column("taxes", Float, nullable=True),
+                      Column("quantity", Integer, nullable=True),
+                      Column("reviews", Integer, nullable=True))
 
     def createTable(self):
         logging.debug("Creating table")

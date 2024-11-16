@@ -84,13 +84,17 @@ class BooksSpiderSpider(scrapy.Spider):
     
     # Método para limpiar los valores de la tabla según la clave.
     def cleanValue(self, key, value):
-        if key.startswith("price") or key == "taxes":
-            return float(value.replace("\u00a3", ""))
-        elif key == "quantity":
-            return int(value.replace("In stock (", "").replace(" available)", ""))
-        elif key == "reviews":
-            return int(value)
-        return value
+        try: 
+            if key.startswith("price") or key == "taxes":
+                return float(value.replace("\u00a3", ""))
+            elif key == "quantity":
+                return int(value.replace("In stock (", "").replace(" available)", ""))
+            elif key == "reviews":
+                return int(value)
+            return value
+        except Exception as e:
+            logging.error(f"Error cleaning {key} : {value}")
+            return None
     
     # Método que guarda un artículo en la lista interna de artículos.
     def save(self, newArticle):
