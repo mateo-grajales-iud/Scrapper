@@ -15,9 +15,6 @@ class SqlLiteConnector:
         logging.debug("Setting up table")
         logging.debug("Connected to database")
         self.createTable()
-        if not self.engine.dialect.has_table(self.engine.connect(), "books"):
-            logging.debug("Table not found")
-            self.createTable()
 
     def setBooksTable(self):
         self.books = Table("books", self.meta,
@@ -28,7 +25,9 @@ class SqlLiteConnector:
                       Column("priceAfterTaxes", Float, nullable=True),
                       Column("taxes", Float, nullable=True),
                       Column("quantity", Integer, nullable=True),
-                      Column("reviews", Integer, nullable=True))
+                      Column("reviews", Integer, nullable=True),
+                      Column("rating", Integer, nullable=True),
+                      Column("author", String, nullable=True))
 
     def createTable(self):
         logging.debug("Creating table")
@@ -47,7 +46,7 @@ class SqlLiteConnector:
         if self.bookExists(connection, article):
             return self.createUpdate(article)
         else:
-            return self.insertArticle(article)
+            return self.createInsert(article)
 
     def createUpdate(self, article):
         return self.books.update().where(self.books.c.upc == article["upc"]).values(article)
