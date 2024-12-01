@@ -1,7 +1,9 @@
 import scrapy
 import json
 import logging
+import pdb
 from ..persistance.SaveToDatabaseHelper import SaveToDatabaseHelper
+from ..books import BookProcessor
 from pathlib import Path
 
 # Clase principal que define el spider de Scrapy para extraer información de libros.
@@ -42,8 +44,15 @@ class BooksSpiderSpider(scrapy.Spider):
     def parseBook(self, response):
         logging.debug(f"Parsing book site {response.url}")
         title = self.getBookTitle(response)
+        rating = self.getBookRating(response)
         rows = response.css("table.table.table-striped tr")
-        self.cleanAndSave(title, rows)
+        self.cleanAndSave(title, rating, rows)
+
+    # Metodo que obtiene el rating de los libros
+    def getBookRating(self, response):
+        rating = response.css('p.star-rating::attr(class)').re(r'star-rating (\w+)')[0]
+        print("RATING: ", rating)
+        return rating
 
     # Método para extraer el título del libro desde la página.
     def getBookTitle(self, response):
@@ -51,11 +60,12 @@ class BooksSpiderSpider(scrapy.Spider):
         return title
 
     # Método que organiza y guarda la información del libro.
-    def cleanAndSave(self, title, rows):
-        newArticle = { "title" : title}
+    def cleanAndSave(self, title, rating, rows):
+        newArticle = { "title" : title, "rating" : rating }
         for row in rows:
             key, value = self.cleanRow(row)
             newArticle[key] = value
+        self.process(newArticle)
         self.save(newArticle)
 
     # Método que procesa cada fila de la tabla, limpiando la clave y el valor.
@@ -88,7 +98,10 @@ class BooksSpiderSpider(scrapy.Spider):
             if key.startswith("price") or key == "taxes":
                 return float(value.replace("\u00a3", ""))
             elif key == "quantity":
-                return int(value.replace("In stock (", "").replace(" available)", ""))
+                try:
+                    return int(value.replace("In stock (", "").replace(" available)", ""))
+                except Exception as e:
+                    return 0
             elif key == "reviews":
                 return int(value)
             return value
@@ -101,6 +114,9 @@ class BooksSpiderSpider(scrapy.Spider):
         logging.debug(f"Parsed {newArticle}")
         self.articlesList.append(newArticle)
 
+    # Metodo que evalua lo que se obtuvo y enriquece
+    def process(self, newArticle):
+        BookProcessor.process(newArticle)
     # Método que guarda todos los artículos extraídos en un archivo y en la base de datos.
     def saveArticles(self):
         self.saveToFile()
